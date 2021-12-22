@@ -1,3 +1,19 @@
+"""""
+===============================================================================
+Industrial Internet of Things (IIoT) Retrofit - Cloud Application
+-----------------------------------------------
+This application is to be run on an server that must be able to communicate
+to the MQTT Broker.
+
+It will receive process information from the accompanying application via MQTT
+and write the values to a MongoDB instance.
+
+After a set period of time (2 mins in this example), the application will pull
+the data for that time period and send an updated setpoint to the PLC application.
+
+===============================================================================
+"""
+
 from datetime import datetime, timedelta
 from dotenv import dotenv_values
 from urllib.parse import urlparse

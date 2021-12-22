@@ -1,4 +1,23 @@
-#!/usr/bin/python3
+"""""
+===============================================================================
+Industrial Internet of Things (IIoT) Retrofit - PLC Application
+-----------------------------------------------
+This application is to be run on an IoT device on the manufacturing floor.
+
+It will connect to EtherNet/IP devices (PLCs) and extract process information
+from them.
+
+This information is then sent to a Cloud based application via MQTT in a 
+JSON format.
+
+Updated setpoints are then returned to this application which notifies the 
+Operator through the turning on of the SenseHat LEDs. The updated setpoint 
+can then be sent to the PLC via a POST request.
+
+The operator can also read the current setpoint by performing a GET request.
+
+===============================================================================
+"""
 
 from pycomm3 import LogixDriver
 from urllib.parse import urlparse
@@ -74,7 +93,7 @@ def on_subscribe(client, obj, mid, granted_qos):
 
 #Function to notify operator of new setpoint
 def indicatorOn(value):
-    sense.show_message(text_string="New Setpoint Available", text_colour=(255,0,0))
+    #sense.show_message(text_string="New Setpoint Available", text_colour=(255,0,0))
     sense.clear(255,0,0)
 
 #MQTT Client setup

@@ -22,7 +22,7 @@ The Python application will then write the value to the PLC.
 
 ## Architecture
 
-![IIot Retrofit Architecture](https://https://github.com/pamarnane/IIoT_Retrofit/img/IIoT_RetroFit_Architecture.png)
+![IIot Retrofit Architecture](https://github.com/pamarnane/IIoT_Retrofit/blob/master/img/IIoT_RetroFit_Architecture.png)
 
 The architecture above details the components used for this project and the connections between them.
 
@@ -35,7 +35,7 @@ Due to the site not owning a Static Public IP, a Dynamic DNS hostname was utilis
 
 ## Information Flow Diagram
 
-![IIot Retrofit Information Flow](https://https://github.com/pamarnane/IIoT_Retrofit/img/IIoT_RetroFit_InformationFlow.png)
+![IIot Retrofit Information Flow](https://github.com/pamarnane/IIoT_Retrofit/blob/master/img/IIoT_RetroFit_InformationFlow.png)
 
 The diagram above represents how information is passed by the various components.
 
