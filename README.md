@@ -15,7 +15,7 @@ Equipment at the manufacturing floor (i.e. PLC) is connected to an IoT device(Ra
 
 The Cloud based application will store these values in a NoSQL DB(MongoDB) and use the process information to send a suggested process setpoint back to the IoT device that is residing on the manufacturing floor.
 
-The Iot device on the manufacturing floor will notify the operator that an updated setpoint is avaialable by turning on the SenseHat indicator to red. For this project the operator will make an API GET request to the Python application for the updated setpoint value and if they would like to update the setpoint with the value, they can send an API POST request. This API functionality could be added to the existing Line HMI pages.
+The IoT device on the manufacturing floor will notify the operator that an updated setpoint is avaialable by turning on the SenseHat indicator to red. For this project the operator will make an API GET request to the Python application for the updated setpoint value and if they would like to update the setpoint with the value, they can send an API POST request. This API functionality could be added to the existing Line HMI pages.
 
 The Python application will then write the value to the PLC.
 
