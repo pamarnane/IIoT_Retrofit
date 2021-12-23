@@ -21,7 +21,7 @@ from pymongo import MongoClient
 import paho.mqtt.client as mqtt
 import json
 
-#load configuration values from .env file
+#Load configuration values from .env file
 config = dotenv_values("iiot/.env")
 
 #Create MongoClient connection
@@ -30,7 +30,7 @@ client = MongoClient(config["mongodb_uri"],
                      tlsCertificateKeyFile='/root/iiot/X509-cert-3358569558120399419.pem')
 db = client.IIoT
 
-#Write payload to MongoDB
+#Function to write payload to MongoDB
 def mongoWrite(payload):
     post = json.loads(payload)
     #Convert timestamp from String to DateTime
@@ -41,7 +41,7 @@ def mongoWrite(payload):
 mqttc = mqtt.Client()
 mqttc.tls_set('iiot/ca.crt')
 
-# Define event callbacks
+# Define MQTT event callbacks
 def on_connect(client, userdata, flags, rc):
     print("Connection Result: " + str(rc))
 
@@ -61,36 +61,37 @@ def publishMessage(payload):
 def main():
     sp_minute = 0
     
-    # Assign event callbacks
+    # Assign MQTT event callbacks
     mqttc.on_message = on_message
     mqttc.on_connect = on_connect
     mqttc.on_subscribe = on_subscribe
 
-    # parse mqtt url for connection details
+    #Parse MQTT url for connection details
     url_str = config["mqtt_url"]
     url = urlparse(url_str)
     base_topic = url.path[1:]
 
-    # Connect
+    # Connect to local Mosquitto MQTT Broker
     mqttc.username_pw_set(config["username"], config["password"])
     mqttc.connect(url.hostname, url.port)
 
-    # Start subscribe, with QoS
+    # Start subscribe to IIoT topic
     mqttc.subscribe(base_topic+"/iiot")
     rc = mqttc.loop_start()
 
     # Continue the network loop, exit when an error occurs
     while True:
+        #Check if 2 minutes has elapsed since last setpoint update
         if (datetime.now().minute % 2) == 0 and sp_minute != datetime.now().minute:
             d = datetime.now() - timedelta(minutes=2)  
             add_temp = 0
             count = 0
-
+            #For loop to get all documents uploaded in lat 2 minutes
             for post in db.LineXX.find({"tStamp": {"$gte": d}}):
                 add_temp += post["temp"]
                 count += 1
-            #Verify that process values have been 
-            #recorded for last time period
+            #Verify that process values have been recorded for last time period
+            #Calculate average and publish to 'setpoint topic
             if count != 0:
                 average = add_temp/count
                 print("Updated setpoint: " + str(average))

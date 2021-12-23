@@ -44,12 +44,14 @@ new_setpoint_payload = ""
 app = Flask(__name__)
 CORS(app)
 
-#Routes for GET & POST
+#Routes for GET & POST requests
+#Read setpoint value from PLC and return
 @app.route('/iiot',methods=['GET'])
 def current_setpoint():
     setpoint = read_single('MQTT_Setpoint')
     return str(setpoint)
 
+#Write new setpoint value to PLC and clear SenseHat LEDs
 @app.route('/iiot',methods=['POST'])
 def ack_setpoint():  
     global new_setpoint_payload
@@ -57,22 +59,23 @@ def ack_setpoint():
     sense.clear([0,0,0])
     return "New setpoint applied: " + str(new_setpoint_payload)
 
-
-#Run API on port 5000, set debug to True
+#Run HTTP API on port 5000
 def runApp():
     app.run(host='0.0.0.0', port=5000, debug=False, use_reloader=False)
 
-#setup PLC communications
+#Setup PLC communications
+#Function to read tag value from PLC
 def read_single(tag):
     with LogixDriver('10.155.3.2/1') as plc:
         return plc.read(tag)
 
+#Function to write value to PLC MQTT Setpoint tag
 def write_single(value):
     with LogixDriver('10.155.3.2/1') as plc:
         print("Updated PLC setpoint: " + value)
         return plc.write('MQTT_Setpoint', float(value))
 
-# Define event callbacks
+# Define MQTT event callbacks
 def on_connect(client, userdata, flags, rc):
     print("Connection Result: " + str(rc))
 
@@ -112,7 +115,7 @@ print(url_str)
 url = urlparse(url_str)
 base_topic = url.path[1:]
 
-# Connect
+#Connect to Mosquitto MQTT Broker
 mqttc.username_pw_set(config["username"], config["password"])
 mqttc.connect(url.hostname, url.port)
 mqttc.loop_start()
@@ -127,12 +130,14 @@ def main():
         
         updated_time = time.time()
 
-        #Use time values to trigger publishing data rather than sleep
+        #Use time values to trigger publishing data rather than sleeping thread
         if (updated_time - start_time) >= 5:
+            #Read MQTT tag values in PLC and add timestmap
             x = read_single('MQTT')
             plcValue = x[1]
             plcValue['tStamp'] = datetime.datetime.utcnow()
-                
+            
+            #Convert PLC values to JSON and publish on IIoT topic
             temp_json=json.dumps(plcValue, default=str)
             mqttc.publish(base_topic+"/iiot", temp_json, 2)
             start_time = time.time()
@@ -143,5 +148,6 @@ def main():
             new_setpoint_flag = False
 
 if __name__ == "__main__":
+    #Seperate thread for HTTP API app ad app main entry
     Thread(target = runApp).start()
     Thread(target = main()).start()
